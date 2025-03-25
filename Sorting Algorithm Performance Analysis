@@ -1,0 +1,107 @@
+import java.util.Arrays;
+import java.util.Random;
+
+public class SortingPerformanceAnalyzer {
+    public static void main(String[] args) {
+        int arraySize = 1000; // Adjust size as needed
+        int[] array = generateRandomArray(arraySize);
+
+        // Clone array to ensure fair comparison
+        int[] arr1 = array.clone();
+        int[] arr2 = array.clone();
+        int[] arr3 = array.clone();
+
+        // Measure execution time
+        long bubbleTime = measureExecutionTime(() -> bubbleSort(arr1));
+        long mergeTime = measureExecutionTime(() -> mergeSort(arr2, 0, arr2.length - 1));
+        long quickTime = measureExecutionTime(() -> quickSort(arr3, 0, arr3.length - 1));
+
+        // Display Results
+        System.out.println("\nSorting Algorithm Performance:");
+        System.out.println("-----------------------------------");
+        System.out.println("Bubble Sort  | Size: " + arraySize + " | Time: " + bubbleTime + " ms");
+        System.out.println("Merge Sort   | Size: " + arraySize + " | Time: " + mergeTime + " ms");
+        System.out.println("Quick Sort   | Size: " + arraySize + " | Time: " + quickTime + " ms");
+    }
+
+    // Generate random array
+    public static int[] generateRandomArray(int size) {
+        Random random = new Random();
+        int[] arr = new int[size];
+        for (int i = 0; i < size; i++) {
+            arr[i] = random.nextInt(10000);
+        }
+        return arr;
+    }
+
+    // Measure execution time of sorting algorithm
+    public static long measureExecutionTime(Runnable sortingAlgorithm) {
+        long start = System.nanoTime();
+        sortingAlgorithm.run();
+        long end = System.nanoTime();
+        return (end - start) / 1_000_000; // Convert to milliseconds
+    }
+
+    // Bubble Sort Algorithm
+    public static void bubbleSort(int[] arr) {
+        int n = arr.length;
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (arr[j] > arr[j + 1]) {
+                    int temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                }
+            }
+        }
+    }
+
+    // Merge Sort Algorithm
+    public static void mergeSort(int[] arr, int left, int right) {
+        if (left < right) {
+            int mid = left + (right - left) / 2;
+            mergeSort(arr, left, mid);
+            mergeSort(arr, mid + 1, right);
+            merge(arr, left, mid, right);
+        }
+    }
+
+    public static void merge(int[] arr, int left, int mid, int right) {
+        int n1 = mid - left + 1;
+        int n2 = right - mid;
+        int[] leftArray = Arrays.copyOfRange(arr, left, mid + 1);
+        int[] rightArray = Arrays.copyOfRange(arr, mid + 1, right + 1);
+        int i = 0, j = 0, k = left;
+        while (i < n1 && j < n2) {
+            arr[k++] = (leftArray[i] <= rightArray[j]) ? leftArray[i++] : rightArray[j++];
+        }
+        while (i < n1) arr[k++] = leftArray[i++];
+        while (j < n2) arr[k++] = rightArray[j++];
+    }
+
+    // Quick Sort Algorithm
+    public static void quickSort(int[] arr, int low, int high) {
+        if (low < high) {
+            int pi = partition(arr, low, high);
+            quickSort(arr, low, pi - 1);
+            quickSort(arr, pi + 1, high);
+        }
+    }
+
+    public static int partition(int[] arr, int low, int high) {
+        int pivot = arr[high];
+        int i = low - 1;
+        for (int j = low; j < high; j++) {
+            if (arr[j] < pivot) {
+                i++;
+                int temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+        }
+        int temp = arr[i + 1];
+        arr[i + 1] = arr[high];
+        arr[high] = temp;
+        return i + 1;
+    }
+}
